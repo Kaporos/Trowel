@@ -7,14 +7,26 @@ import (
 	"path/filepath"
 )
 
-const basepath = "/home/theo/.local/share/trowel"
-
 type Template struct {
 	name string
 }
 
+func basePath() string {
+	path, err := os.UserHomeDir()
+	if err != nil {
+		panic("Unable to get $HOME, please check if it has a value.")
+	}
+	complete_path := filepath.Join(path, ".local/share/trowel/")
+	if os.MkdirAll(path, 0666) != nil {
+		println("Unable to create", complete_path)
+		panic("could not recover.")
+	}
+	return complete_path
+
+}
+
 func listTemplates() []Template {
-	entries, err := os.ReadDir(basepath)
+	entries, err := os.ReadDir(basePath())
 	if err != nil {
 		println("Unable to retrieve templates")
 		return nil
@@ -31,7 +43,7 @@ func listTemplates() []Template {
 }
 
 func createTemplate(toName string, templateName string) {
-	path := filepath.Join(filepath.Join(basepath, templateName))
+	path := filepath.Join(filepath.Join(basePath(), templateName))
 	entries, err := os.ReadDir(path)
 	if err != nil {
 		fmt.Println("Template", templateName, "not exist.")
@@ -47,14 +59,14 @@ func registerTemplate(origin string) {
 		fmt.Println("Unable to read", origin)
 		return
 	}
-	path := filepath.Join(basepath, filepath.Base(origin))
+	path := filepath.Join(basePath(), filepath.Base(origin))
 	os.Mkdir(path, 0700)
 	copyEntries(entries, origin, path)
 	fmt.Println("Registered", origin)
 }
 
 func deleteTemplate(origin string) {
-	path := filepath.Join(basepath, filepath.Base(origin))
+	path := filepath.Join(basePath(), filepath.Base(origin))
 	_, err := os.ReadDir(path)
 	if err != nil {
 		fmt.Println("Unable to delete", origin, "are you sure it exists ?")
