@@ -11,18 +11,21 @@ type Template struct {
 	name string
 }
 
+const PERM = 0777
+
 func basePath() string {
 	path, err := os.UserHomeDir()
 	if err != nil {
 		panic("Unable to get $HOME, please check if it has a value.")
 	}
 	complete_path := filepath.Join(path, ".local/share/trowel/")
-	if os.MkdirAll(path, 0666) != nil {
+	if os.MkdirAll(complete_path, PERM) != nil {
 		println("Unable to create", complete_path)
 		panic("could not recover.")
+	} else {
+		println("created", complete_path)
 	}
 	return complete_path
-
 }
 
 func listTemplates() []Template {
@@ -49,7 +52,9 @@ func createTemplate(toName string, templateName string) {
 		fmt.Println("Template", templateName, "not exist.")
 		return
 	}
-	os.Mkdir(toName, 0700)
+	if os.Mkdir(toName, PERM) != nil {
+		println("erroooor")
+	}
 	copyEntries(entries, path, toName)
 }
 
@@ -60,7 +65,7 @@ func registerTemplate(origin string) {
 		return
 	}
 	path := filepath.Join(basePath(), filepath.Base(origin))
-	os.Mkdir(path, 0700)
+	os.Mkdir(path, PERM)
 	copyEntries(entries, origin, path)
 	fmt.Println("Registered", origin)
 }
@@ -87,7 +92,7 @@ func copyEntries(entries []fs.DirEntry, path string, destination string) {
 				fmt.Println("Unable to read", npath)
 				return
 			}
-			os.Mkdir(ndest, 0700)
+			os.Mkdir(ndest, PERM)
 			copyEntries(new_entries, npath, ndest)
 		} else {
 			data, err := os.ReadFile(filepath.Join(path, name))
@@ -95,7 +100,7 @@ func copyEntries(entries []fs.DirEntry, path string, destination string) {
 				fmt.Println("Unable to read", name)
 				return
 			}
-			os.WriteFile(ndest, data, 0644)
+			os.WriteFile(ndest, data, PERM)
 
 		}
 		fmt.Println("Created", ndest)
