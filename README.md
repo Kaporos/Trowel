@@ -2,6 +2,16 @@
 
 Trowel is a **really** lightweight project scaffolding tool.
 
+# Installation
+
+You can either download this entire repo execute
+
+    go install .
+
+or simply
+    
+    go install github.com/kaporos/trowel@main
+
 # Usage
 
 First, you must create your templates, so open a dir and put some files in it.
